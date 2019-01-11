@@ -8,6 +8,7 @@ const pool = new pg.Pool();
 
 const string = "postgres://postgres:12345@localhost:5432/test";
 
+// Get route
 
 app.get('/', (req, res,) => {
   pool.connect(string, (err, client, done) => {
@@ -27,6 +28,8 @@ app.get('/', (req, res,) => {
   });
 });
 
+// Post route
+
 app.post('/add', (req, res,) => {
   pool.connect(string, (err, client, done) => {
      if(err){
@@ -40,6 +43,47 @@ app.post('/add', (req, res,) => {
              res.status(400).send(err);
          }
          res.status(200).send(result.rows);
+         done(); // closing the connection;
+     });
+  });
+});
+
+
+// Update route
+
+app.post('/update', (req, res,) => {
+  pool.connect(string, (err, client, done) => {
+     if(err){
+         console.log("not able to get connection "+ err);
+         res.status(400).send(err);
+     } 
+     client.query("UPDATE  student SET id=$1 , firstname=$2, age=$3, lastname=$4", [req.body.id,req.body.firstname,req.body.age,req.body.lastname], (err,result) => {
+     
+         if(err){
+             console.log(err);
+             res.status(400).send(err);
+         }
+         res.status(200).send(result.rows);
+         done(); // closing the connection;
+     });
+  });
+});
+
+// Delete route by id
+
+app.delete('/delete/:id', (req, res,) => {
+  pool.connect(string, (err, client, done) => {
+     if(err){
+         console.log("not able to get connection "+ err);
+         res.status(400).send(err);
+     } 
+     client.query("DELETE FROM student where id = $1", [req.body.id], (err,result) => {
+     
+         if(err){
+             console.log(err);
+             res.status(400).send(err);
+         }
+         res.status(200).send("msg: items deleted");
          done(); // closing the connection;
      });
   });
